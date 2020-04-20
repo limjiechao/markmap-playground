@@ -70,7 +70,7 @@ export default {
     ),
     svgOutput () {
       const innerHtml = document.getElementById('mindmap').innerHTML
-      return `<svg id="markmap" xmlns="http://www.w3.org/2000/svg" class="markmap">${innerHtml}</svg>`
+      return `<?xml version="1.0" encoding="UTF-8"?><svg id="markmap" xmlns="http://www.w3.org/2000/svg" class="markmap">${innerHtml}</svg>`
     },
     copyText () {
       document.getElementById('editor').select()
@@ -90,7 +90,7 @@ export default {
       this.download('download-html', html, `markmap-${Date.now()}.html`, 'text/html')
     },
     downloadSvg () {
-      this.download('download-svg', this.svgOutput(), `markmap-${Date.now()}.svg`, 'text/plain')
+      this.download('download-svg', this.svgOutput(), `markmap-${Date.now()}.svg`, 'image/svg+xml')
     },
     download (elementId, text, filename, type) {
       // REF: https://stackoverflow.com/a/29339233
