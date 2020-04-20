@@ -14,7 +14,9 @@
         <a id="download-svg" @click="downloadSvg">Save SVG</a>
       </div>
     </div>
-    <svg id="mindmap"/>
+    <div id="mindmap-pane">
+      <svg id="mindmap"/>
+    </div>
   </div>
 </template>
 
@@ -236,31 +238,18 @@ body,
   color: #333;
 }
 
-#app,
 #bottom-bar {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
-}
-
-#mindmap {
-  width: 65%;
-}
-
-#editor-pane {
-  display: flex;
-  flex-direction: column;
-  width: 35%;
-  min-width: 280px;
-}
-
-#bottom-bar {
+  width: 100%;
   cursor: pointer;
   background-color: #f0f0f0;
 }
 
 #bottom-bar > a {
-  font-size: 0.857142rem;
+  text-decoration: none;
+  font-size: 0.714285rem;
   font-weight: bolder;
   color: dodgerblue;
   padding: 0.4rem 0.3rem;
@@ -271,16 +260,89 @@ body,
   color: mediumseagreen;
 }
 
-textarea {
+#bottom-bar > a:active {
+  color: dodgerblue;
+}
+
+/*@supports (padding-bottom: env(safe-area-inset-bottom)) {*/
+/*  #bottom-bar {*/
+/*    padding-bottom: calc(env(safe-area-inset-bottom) * 0.6);*/
+/*  }*/
+/*}*/
+
+#editor {
   border: none;
   resize: none;
   outline: none;
   margin: 0;
   background-color: #f6f6f6;
   height: 100%;
-  font-size: 14px;
   font-family: "Monaco", courier, monospace;
-  padding: 20px;
+  padding: 0 0.857142rem;
 }
 
+/*@supports (padding-left: env(safe-area-inset-left)) {*/
+/*  #mindmap,*/
+/*  #editor {*/
+/*    padding-left: calc(env(safe-area-inset-left) + 1rem);*/
+/*  }*/
+/*}*/
+
+/* Left-Right View */
+@media (min-aspect-ratio: 2/3) {
+  #app {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    width: 100%;
+  }
+  #mindmap {
+    width: 65%;
+  }
+  #editor {
+    font-size: 0.857142rem;
+  }
+  #editor-pane {
+    display: flex;
+    flex-direction: column;
+    width: 35%;
+    min-width: 280px;
+  }
+  #mindmap-pane {
+    height: 100%;
+    width: 65%;
+  }
+  #mindmap {
+    height: 99%;
+    width: 100%;
+  }
+}
+
+/* Top-Bottom View */
+@media (max-aspect-ratio: 2/3) {
+  #app {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    width: 100%;
+  }
+  #mindmap {
+    height: 99%;
+    width: 100%;
+  }
+  #editor {
+    font-size: 0.714285rem;
+  }
+  #editor-pane {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    height: 45%;
+    width: 100%;
+  }
+  #mindmap-pane {
+    height: 55%;
+    width: 100%;
+  }
+}
 </style>
