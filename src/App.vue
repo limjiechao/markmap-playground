@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :style="{ height: appHeight }">
+  <div id="app" :style="{ height: appHeight, width: appWidth }">
     <div id="editor-pane">
       <textarea
         id="editor"
@@ -28,8 +28,9 @@ export default {
   name: 'App',
   data () {
     return {
-      windowInnerHeight: null,
       markdown: '# Trio\n\n- Tom\n- Dick\n- Harry',
+      documentElementClientHeight: null,
+      documentElementClientWidth: null,
       markmap: null
     }
   },
@@ -38,11 +39,15 @@ export default {
       return transform(this.markdown)
     },
     appHeight () {
-      return `${this.windowInnerHeight}px`
+      return `${this.documentElementClientHeight}px`
+    },
+    appWidth () {
+      return `${this.documentElementClientWidth}px`
     }
   },
   created () {
-    this.initializeWindowInnerHeightListener(window)
+    this.initializeWindowInnerHeightListener(document.documentElement, window)
+    this.initializeWindowInnerWidthListener(document.documentElement, window)
   },
   mounted () {
     this.initializeTabKeyToIndentLine()
@@ -94,12 +99,20 @@ export default {
       button.href = URL.createObjectURL(file)
       button.download = filename
     },
-    initializeWindowInnerHeightListener (window) {
-      this.windowInnerHeight = window.innerHeight
+    initializeWindowInnerHeightListener (documentElement, window) {
+      this.documentElementClientHeight = documentElement.clientHeight
 
       window.addEventListener(
         'resize',
-        () => { this.windowInnerHeight = window.innerHeight }
+        () => { this.documentElementClientHeight = documentElement.clientHeight }
+      )
+    },
+    initializeWindowInnerWidthListener (documentElement, window) {
+      this.documentElementClientWidth = documentElement.clientWidth
+
+      window.addEventListener(
+        'resize',
+        () => { this.documentElementClientWidth = documentElement.clientWidth }
       )
     },
     initializeTabKeyToIndentLine () {
