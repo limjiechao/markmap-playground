@@ -47,8 +47,7 @@ export default {
   mounted () {
     this.initializeTabKeyToIndentLine()
     this.retrieveSavedTextFromLocalStorage()
-
-    this.markmap = markmap('#mindmap', this.transformed, { autoFit: true })
+    this.instantiateMarkmap()
   },
   watch: {
     transformed: {
@@ -161,6 +160,9 @@ export default {
           }
         }
       }
+    },
+    instantiateMarkmap () {
+      this.markmap = markmap('#mindmap', this.transformed, { autoFit: true })
     },
     retrieveSavedTextFromLocalStorage () {
       const savedText = window.localStorage.getItem('markmapPlaygroundSavedText')
