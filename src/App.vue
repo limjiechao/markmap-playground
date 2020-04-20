@@ -24,6 +24,24 @@ import { markmap } from 'markmap-lib/dist/view.common'
 import { fillTemplate } from 'markmap-lib/dist/template'
 import debounce from 'lodash/debounce'
 
+const constructFindAndReplaceMalformedMarkdown = (malformedRegExp, tokenRegExp) => {
+  return markdown => {
+    let lintedMarkdown = markdown
+    const malformedMarkdown = lintedMarkdown.match(malformedRegExp)
+
+    if (malformedMarkdown) {
+      for (const item of malformedMarkdown) {
+        const token = item.match(tokenRegExp)[0]
+        const previousLine = item.split(token)[0]
+        const line = item.split(token)[1].trim()
+        lintedMarkdown = lintedMarkdown.replace(item, `${previousLine}${token} ${line}`)
+      }
+    }
+
+    return lintedMarkdown
+  }
+}
+
 export default {
   name: 'App',
   data () {
@@ -64,8 +82,24 @@ export default {
     }
   },
   methods: {
+    trimExcessNewLines (rawMarkdown) {
+      return rawMarkdown.replace(/\n{3,}/g, '\n\n')
+    },
+    findAndReplaceMalformedBulletPoints: constructFindAndReplaceMalformedMarkdown(/\n[ ]*[-*]([ ]{2,}|[ ]{0})\w/g, /[-*]/g),
+    findAndReplaceMalformedNumberedPoints: constructFindAndReplaceMalformedMarkdown(/\n[ ]*\d+\.([ ]{2,}|[ ]{0})\w/g, /\./g),
+    findAndReplaceMalformedHeaders: constructFindAndReplaceMalformedMarkdown(/(^|\n[ ]*)[#]{1,6}([ ]{2,}|[ ]{0})\w/g, /#{1,6}/g),
+    lintMarkdown (rawMarkdown) {
+      return (
+        [
+          this.trimExcessNewLines,
+          this.findAndReplaceMalformedBulletPoints,
+          this.findAndReplaceMalformedNumberedPoints,
+          this.findAndReplaceMalformedHeaders
+        ].reduce((lintedMarkdown, linter) => linter(lintedMarkdown), rawMarkdown)
+      )
+    },
     updateMarkdown: debounce(
-      function (event) { this.markdown = event.target.value },
+      function (event) { this.markdown = this.lintMarkdown(event.target.value) },
       800
     ),
     svgOutput () {
