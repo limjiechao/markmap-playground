@@ -46,9 +46,9 @@ export default {
   name: 'App',
   data () {
     return {
-      markdown: '# Trio\n\n- Tom\n- Dick\n- Harry',
       documentElementClientHeight: null,
       documentElementClientWidth: null,
+      markdown: '# Oceans\n\n- Pacific\n- Indian\n- Atlantic\n- Antarctic\n- Arctic',
       markmap: null
     }
   },
