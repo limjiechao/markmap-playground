@@ -165,12 +165,8 @@ body,
   text-align: center;
 }
 
-#bottom-bar > a:hover {
-  color: mediumseagreen;
-}
-
 #bottom-bar > a:active {
-  color: dodgerblue;
+  color: mediumseagreen;
 }
 
 /*@supports (padding-bottom: env(safe-area-inset-bottom)) {*/
