@@ -10,7 +10,6 @@ const constructFindAndReplaceAllMalformedMarkdown = (malformedRegExp, tokenRegEx
   return markdown => {
     let lintedMarkdown = markdown
     let malformedMarkdown = lintedMarkdown.match(malformedRegExp)
-    console.dir(malformedMarkdown)
 
     while (malformedMarkdown) {
       const token = malformedMarkdown.groups.token
@@ -42,7 +41,6 @@ export const lintMarkdown = rawMarkdown => (
 //   return markdown => {
 //     let lintedMarkdown = markdown
 //     const malformedMarkdown = lintedMarkdown.match(globalMalformedRegExp)
-//     console.dir(malformedMarkdown)
 //
 //     if (malformedMarkdown) {
 //       for (const item of malformedMarkdown) {
