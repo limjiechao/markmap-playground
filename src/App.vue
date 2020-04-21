@@ -29,6 +29,7 @@ import debounce from 'lodash/debounce'
 import { lintMarkdown } from './lintMarkdown'
 import { initializeTabKey } from './indentWithTabKey'
 
+const placeholderMarkdown = '# Oceans\n\n- Atlantic\n- Arctic\n- Indian\n- Pacific\n-'
 
 export default {
   name: 'App',
@@ -36,7 +37,7 @@ export default {
     return {
       documentElementClientHeight: null,
       documentElementClientWidth: null,
-      markdown: '# Oceans\n\n- Pacific\n- Indian\n- Atlantic\n- Antarctic\n- Arctic',
+      markdown: null,
       markmap: null
     }
   },
@@ -56,8 +57,8 @@ export default {
     this.initializeWindowInnerWidthListener(document.documentElement, window)
   },
   mounted () {
-    this.retrieveSavedTextFromLocalStorage()
     initializeTabKey()
+    this.markdown = lintMarkdown(this.retrieveSavedTextFromLocalStorage()) || placeholderMarkdown
     this.instantiateMarkmap()
   },
   watch: {
@@ -125,10 +126,7 @@ export default {
       this.markmap = markmap('#mindmap', this.transformed, { autoFit: true })
     },
     retrieveSavedTextFromLocalStorage () {
-      const savedText = window.localStorage.getItem('markmapPlaygroundSavedText')
-      if (savedText) {
-        this.markdown = savedText
-      }
+      return window.localStorage.getItem('markmapPlaygroundSavedText') || ''
     },
     saveTextToLocalStorage () {
       window.localStorage.setItem('markmapPlaygroundSavedText', this.markdown)
