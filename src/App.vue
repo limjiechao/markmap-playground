@@ -83,6 +83,7 @@ export default {
       document.getElementById('editor').select()
       document.execCommand('copy')
       document.getSelection().removeAllRanges()
+      document.activeElement.blur()
     },
     clearText () {
       if (window.confirm('Are you sure you want to clear the text?')) {
