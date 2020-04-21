@@ -86,7 +86,10 @@ export default {
       document.activeElement.blur()
     },
     clearText () {
-      if (window.confirm('Are you sure you want to clear the text?')) {
+      const isPlaceholderText = this.markdown === placeholderMarkdown
+      if (isPlaceholderText) {
+        this.markdown = ''
+      } else if (window.confirm('Are you sure you want to clear the text?')) {
         this.markdown = ''
       }
     },
