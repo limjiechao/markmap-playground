@@ -72,7 +72,7 @@ export default {
   },
   methods: {
     updateMarkdown: debounce(
-      function (event) { this.markdown = this.lintMarkdown(event.target.value) },
+      function (event) { this.markdown = lintMarkdown(event.target.value) },
       800
     ),
     svgOutput () {
