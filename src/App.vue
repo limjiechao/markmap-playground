@@ -26,23 +26,9 @@ import { markmap } from 'markmap-lib/dist/view.common'
 import { fillTemplate } from 'markmap-lib/dist/template'
 import debounce from 'lodash/debounce'
 
-const constructFindAndReplaceMalformedMarkdown = (malformedRegExp, tokenRegExp) => {
-  return markdown => {
-    let lintedMarkdown = markdown
-    const malformedMarkdown = lintedMarkdown.match(malformedRegExp)
+import { lintMarkdown } from './lintMarkdown'
+import { initializeTabKey } from './indentWithTabKey'
 
-    if (malformedMarkdown) {
-      for (const item of malformedMarkdown) {
-        const token = item.match(tokenRegExp)[0]
-        const previousLine = item.split(token)[0]
-        const line = item.split(token)[1].trim()
-        lintedMarkdown = lintedMarkdown.replace(item, `${previousLine}${token} ${line}`)
-      }
-    }
-
-    return lintedMarkdown
-  }
-}
 
 export default {
   name: 'App',
@@ -70,8 +56,8 @@ export default {
     this.initializeWindowInnerWidthListener(document.documentElement, window)
   },
   mounted () {
-    this.initializeTabKeyToIndentLine()
     this.retrieveSavedTextFromLocalStorage()
+    initializeTabKey()
     this.instantiateMarkmap()
   },
   watch: {
@@ -84,22 +70,6 @@ export default {
     }
   },
   methods: {
-    trimExcessNewLines (rawMarkdown) {
-      return rawMarkdown.replace(/\n{3,}/g, '\n\n')
-    },
-    findAndReplaceMalformedBulletPoints: constructFindAndReplaceMalformedMarkdown(/\n[ ]*[-*]([ ]{2,}|[ ]{0})\w/g, /[-*]/g),
-    findAndReplaceMalformedNumberedPoints: constructFindAndReplaceMalformedMarkdown(/\n[ ]*\d+\.([ ]{2,}|[ ]{0})\w/g, /\./g),
-    findAndReplaceMalformedHeaders: constructFindAndReplaceMalformedMarkdown(/(^|\n[ ]*)[#]{1,6}([ ]{2,}|[ ]{0})\w/g, /#{1,6}/g),
-    lintMarkdown (rawMarkdown) {
-      return (
-        [
-          this.trimExcessNewLines,
-          this.findAndReplaceMalformedBulletPoints,
-          this.findAndReplaceMalformedNumberedPoints,
-          this.findAndReplaceMalformedHeaders
-        ].reduce((lintedMarkdown, linter) => linter(lintedMarkdown), rawMarkdown)
-      )
-    },
     updateMarkdown: debounce(
       function (event) { this.markdown = this.lintMarkdown(event.target.value) },
       800
@@ -150,65 +120,6 @@ export default {
         'resize',
         () => { this.documentElementClientWidth = documentElement.clientWidth }
       )
-    },
-    initializeTabKeyToIndentLine () {
-      // REF: https://css-tricks.com/snippets/javascript/support-tabs-in-textareas/
-      HTMLTextAreaElement.prototype.getCaretPosition = function () { // return the caret position of the textarea
-        return this.selectionStart
-      }
-      HTMLTextAreaElement.prototype.setCaretPosition = function (position) { // change the caret position of the textarea
-        this.selectionStart = position
-        this.selectionEnd = position
-        this.focus()
-      }
-      HTMLTextAreaElement.prototype.hasSelection = function () { // if the textarea has selection then return true
-        if (this.selectionStart === this.selectionEnd) {
-          return false
-        } else {
-          return true
-        }
-      }
-      HTMLTextAreaElement.prototype.getSelectedText = function () { // return the selection text
-        return this.value.substring(this.selectionStart, this.selectionEnd)
-      }
-      HTMLTextAreaElement.prototype.setSelection = function (start, end) { // change the selection area of the textarea
-        this.selectionStart = start
-        this.selectionEnd = end
-        this.focus()
-      }
-
-      const textarea = document.getElementsByTagName('textarea')[0]
-
-      textarea.onkeydown = function (event) {
-        // support tab on textarea
-        if (event.keyCode === 9) { // tab was pressed
-          const newCaretPosition = textarea.getCaretPosition() + '    '.length
-          textarea.value = textarea.value.substring(0, textarea.getCaretPosition()) + '    ' + textarea.value.substring(textarea.getCaretPosition(), textarea.value.length)
-          textarea.setCaretPosition(newCaretPosition)
-          return false
-        }
-        if (event.keyCode === 8) { // backspace
-          if (textarea.value.substring(textarea.getCaretPosition() - 4, textarea.getCaretPosition()) === '    ') { // it's a tab space
-            const newCaretPosition = textarea.getCaretPosition() - 3
-            textarea.value = textarea.value.substring(0, textarea.getCaretPosition() - 3) + textarea.value.substring(textarea.getCaretPosition(), textarea.value.length)
-            textarea.setCaretPosition(newCaretPosition)
-          }
-        }
-        if (event.keyCode === 37) { // left arrow
-          let newCaretPosition
-          if (textarea.value.substring(textarea.getCaretPosition() - 4, textarea.getCaretPosition()) === '    ') { // it's a tab space
-            newCaretPosition = textarea.getCaretPosition() - 3
-            textarea.setCaretPosition(newCaretPosition)
-          }
-        }
-        if (event.keyCode === 39) { // right arrow
-          let newCaretPosition
-          if (textarea.value.substring(textarea.getCaretPosition() + 4, textarea.getCaretPosition()) === '    ') { // it's a tab space
-            newCaretPosition = textarea.getCaretPosition() + 3
-            textarea.setCaretPosition(newCaretPosition)
-          }
-        }
-      }
     },
     instantiateMarkmap () {
       this.markmap = markmap('#mindmap', this.transformed, { autoFit: true })
