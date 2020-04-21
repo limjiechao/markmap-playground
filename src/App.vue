@@ -53,8 +53,8 @@ export default {
     }
   },
   created () {
-    this.initializeWindowInnerHeightListener(document.documentElement, window)
-    this.initializeWindowInnerWidthListener(document.documentElement, window)
+    this.initializeDocumentElementClientHeightListener(document.documentElement, window)
+    this.initializeDocumentElementClientWidthListener(document.documentElement, window)
   },
   mounted () {
     initializeTabKey()
@@ -110,7 +110,7 @@ export default {
       button.href = URL.createObjectURL(file)
       button.download = filename
     },
-    initializeWindowInnerHeightListener (documentElement, window) {
+    initializeDocumentElementClientHeightListener (documentElement, window) {
       this.documentElementClientHeight = documentElement.clientHeight
 
       window.addEventListener(
@@ -118,7 +118,7 @@ export default {
         () => { this.documentElementClientHeight = documentElement.clientHeight }
       )
     },
-    initializeWindowInnerWidthListener (documentElement, window) {
+    initializeDocumentElementClientWidthListener (documentElement, window) {
       this.documentElementClientWidth = documentElement.clientWidth
 
       window.addEventListener(
