@@ -7,6 +7,7 @@
         @input="updateMarkdown"
         name="markmap"/>
       <div id="bottom-bar">
+        <a id="lint-text" @click="lintText">Lint Text</a>
         <a id="copy-text" @click="copyText">Copy Text</a>
         <a id="clear-text" @click="clearText">Clear Text</a>
         <a id="download-markdown" @click="downloadText">Save Text</a>
@@ -27,7 +28,6 @@ import { fillTemplate } from 'markmap-lib/dist/template'
 import debounce from 'lodash/debounce'
 
 import { lintMarkdown } from './lintMarkdown'
-import { initializeTabKey } from './indentWithTabKey'
 
 const placeholderMarkdown = '# Oceans\n\n- Atlantic\n- Arctic\n- Indian\n- Pacific\n-'
 
@@ -38,7 +38,8 @@ export default {
       documentElementClientHeight: null,
       documentElementClientWidth: null,
       markdown: null,
-      markmap: null
+      markmap: null,
+      editor: null
     }
   },
   computed: {
@@ -57,9 +58,29 @@ export default {
     this.initializeDocumentElementClientWidthListener(document.documentElement, window)
   },
   mounted () {
-    initializeTabKey()
+    // initializeTabKey()
     this.markdown = lintMarkdown(this.retrieveSavedTextFromLocalStorage()) || placeholderMarkdown
     this.instantiateMarkmap()
+
+    // eslint-disable-next-line no-undef
+    this.editor = CodeMirror.fromTextArea(
+      document.querySelector('textarea#editor'),
+      {
+        mode: 'markdown',
+        lineNumbers: true,
+        highlightFormatting: true,
+        theme: 'default',
+        showTrailingSpace: true,
+        autoCloseBrackets: true,
+        extraKeys: { Enter: 'newlineAndIndentContinueMarkdownList' }
+      }
+    )
+    this.editor.setValue(this.markdown)
+    this.editor.on('change', this.updateMarkdown)
+    // eslint-disable-next-line no-undef
+    CodeMirror.keyMap.default['Shift-Tab'] = 'indentLess'
+    // eslint-disable-next-line no-undef
+    CodeMirror.keyMap.default.Tab = 'indentMore'
   },
   watch: {
     transformed: {
@@ -72,12 +93,17 @@ export default {
   },
   methods: {
     updateMarkdown: debounce(
-      function (event) { this.markdown = lintMarkdown(event.target.value) },
+      function (codeMirror) {
+        this.markdown = lintMarkdown(codeMirror.getValue())
+      },
       800
     ),
     svgOutput () {
       const innerHtml = document.getElementById('mindmap').innerHTML
       return `<?xml version="1.0" encoding="UTF-8"?><svg id="markmap" xmlns="http://www.w3.org/2000/svg" class="markmap">${innerHtml}</svg>`
+    },
+    lintText () {
+      this.editor.setValue(this.markdown)
     },
     copyText () {
       document.getElementById('editor').select()
@@ -179,6 +205,19 @@ body,
 /*  }*/
 /*}*/
 
+.CodeMirror {
+  height: 100%;
+  font-family: "Monaco", courier, monospace;
+  font-size: 0.857142rem;
+  border: none;
+  background-color: #f7f7f7;
+}
+
+.CodeMirror-gutters,
+.CodeMirror-gutters > .CodeMirror-gutter.CodeMirror-linenumbers {
+  background-color: #f0f0f0;
+}
+
 #editor {
   border: none;
   resize: none;
@@ -197,6 +236,13 @@ body,
 /*  }*/
 /*}*/
 
+/* REF: https://stackoverflow.com/questions/3379091/is-it-possible-to-change-width-of-tab-symbol-in-textarea */
+textarea {
+  -moz-tab-size : 4;
+  -o-tab-size : 4;
+  tab-size : 4;
+}
+
 /* Left-Right View */
 @media (min-aspect-ratio: 2/3) {
   #app {
@@ -207,6 +253,9 @@ body,
   }
   #mindmap {
     width: 65%;
+  }
+  .CodeMirror {
+    font-size: 0.857142rem;
   }
   #editor {
     font-size: 0.857142rem;
@@ -238,6 +287,9 @@ body,
   #mindmap {
     height: 99%;
     width: 100%;
+  }
+  .CodeMirror {
+    font-size: 0.714285rem;
   }
   #editor {
     font-size: 0.714285rem;
