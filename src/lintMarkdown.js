@@ -2,11 +2,11 @@ const malformedBulletPointPattern = /(?<previousLine>^|\n[ ]*)(?<token>[-*])(?<i
 const malformedNumberedPointPattern = /(?<previousLine>^|\n[ ]*)(?<token>\d+\.)(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ #])/
 const malformedHeaderPattern = /(?<previousLine>^|\n[ ]*)(?<token>[#]{1,6})(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ #])/
 
-const bulletPointPattern = /[-*]/g
-const numberPointPattern = /\./g
-const headerPattern = /#{1,6}/g
+// const bulletPointPattern = /[-*]/g
+// const numberPointPattern = /\./g
+// const headerPattern = /#{1,6}/g
 
-const constructFindAndReplaceAllMalformedMarkdown = (malformedRegExp, tokenRegExp) => {
+const constructFindAndReplaceAllMalformedMarkdown = malformedRegExp => {
   return markdown => {
     let lintedMarkdown = markdown
     let malformedMarkdown = lintedMarkdown.match(malformedRegExp)
@@ -24,9 +24,9 @@ const constructFindAndReplaceAllMalformedMarkdown = (malformedRegExp, tokenRegEx
 }
 
 const trimExcessNewLines = rawMarkdown => rawMarkdown.replace(/\n{3,}/g, '\n\n')
-const findAndReplaceMalformedBulletPoints = constructFindAndReplaceAllMalformedMarkdown(malformedBulletPointPattern, bulletPointPattern)
-const findAndReplaceMalformedNumberedPoints = constructFindAndReplaceAllMalformedMarkdown(malformedNumberedPointPattern, numberPointPattern)
-const findAndReplaceMalformedHeaders = constructFindAndReplaceAllMalformedMarkdown(malformedHeaderPattern, headerPattern)
+const findAndReplaceMalformedBulletPoints = constructFindAndReplaceAllMalformedMarkdown(malformedBulletPointPattern)
+const findAndReplaceMalformedNumberedPoints = constructFindAndReplaceAllMalformedMarkdown(malformedNumberedPointPattern)
+const findAndReplaceMalformedHeaders = constructFindAndReplaceAllMalformedMarkdown(malformedHeaderPattern)
 
 export const lintMarkdown = rawMarkdown => (
   [
