@@ -90,16 +90,16 @@ export default {
       }
     },
     downloadText () {
-      this.download('download-markdown', this.markdown, `markmap-${Date.now()}.txt`, 'text/plain')
+      this.initializeDownload('download-markdown', this.markdown, `markmap-${Date.now()}.txt`, 'text/plain')
     },
     downloadHtml () {
       const html = fillTemplate(this.transformed)
-      this.download('download-html', html, `markmap-${Date.now()}.html`, 'text/html')
+      this.initializeDownload('download-html', html, `markmap-${Date.now()}.html`, 'text/html')
     },
     downloadSvg () {
-      this.download('download-svg', this.svgOutput(), `markmap-${Date.now()}.svg`, 'image/svg+xml')
+      this.initializeDownload('download-svg', this.svgOutput(), `markmap-${Date.now()}.svg`, 'image/svg+xml')
     },
-    download (elementId, text, filename, type) {
+    initializeDownload (elementId, text, filename, type) {
       // REF: https://stackoverflow.com/a/29339233
       const button = document.getElementById(elementId)
       const file = new Blob([text], { type: type })
