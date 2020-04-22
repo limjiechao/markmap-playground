@@ -1,5 +1,7 @@
 <template>
-  <div id="app" :style="{ height: appHeight, width: appWidth }">
+  <div
+    id="app"
+    :style="{ height: appHeight, width: appWidth }">
     <div id="editor-pane">
       <textarea
         id="editor"
@@ -8,12 +10,27 @@
         placeholder="Enter Markdown here..."
         name="markmap"/>
       <div id="bottom-bar">
-        <a id="lint-text" @click="lintText">Lint Text</a>
-        <a id="copy-text" @click="copyText">Copy Text</a>
-        <a id="clear-text" @click="clearText">Clear Text</a>
-        <a id="download-markdown" @click="downloadText">Save Text</a>
-        <a id="download-html" @click="downloadHtml">Save HTML</a>
-        <a id="download-svg" @click="downloadSvg">Save SVG</a>
+        <a
+          id="lint-text"
+          @click="lintText">Lint Text</a>
+        <a
+          id="copy-text"
+          @click="copyText">Copy Text</a>
+        <a
+          id="clear-text"
+          @click="clearText">Clear Text</a>
+        <a
+          id="download-markdown"
+          @click="downloadText">Get Text</a>
+        <a
+          id="download-html"
+          @click="downloadHtml">Get HTML</a>
+        <a
+          id="download-svg"
+          @click="downloadSvg">Get SVG</a>
+        <a
+          id="fit-mindmap"
+          @click="fitMindmap">Fit Canvas</a>
       </div>
     </div>
     <div id="mindmap-pane">
@@ -49,6 +66,9 @@ export default {
     },
     appWidth () {
       return `${this.documentElementClientWidth}px`
+    },
+    appDimensions () {
+      return { height: this.appHeight, width: this.appWidth }
     }
   },
   created () {
@@ -61,6 +81,7 @@ export default {
     this.editor = this.instantiateCodeMirror(window.CodeMirror)
     this.configureCodeMirrorTabKey(window.CodeMirror)
     this.initializeCodeMirror()
+    this.setFocusOnLastLineInCodeMirror()
   },
   watch: {
     markdown: {
@@ -69,6 +90,9 @@ export default {
         this.saveTextToLocalStorage()
       },
       deep: true
+    },
+    appDimensions () {
+      this.fitMindmap()
     }
   },
   methods: {
@@ -84,6 +108,7 @@ export default {
     },
     lintText () {
       this.editor.setValue(lintMarkdown(this.markdown))
+      this.setFocusOnCodeMirror()
     },
     copyText () {
       document.getElementById('editor').select()
@@ -116,6 +141,10 @@ export default {
       button.href = URL.createObjectURL(file)
       button.download = filename
     },
+    fitMindmap: debounce(
+      function () { this.markmap.fit() },
+      800
+    ),
     initializeDocumentElementClientHeightListener (documentElement, window) {
       this.documentElementClientHeight = documentElement.clientHeight
 
@@ -177,6 +206,18 @@ export default {
     initializeCodeMirror () {
       this.editor.setValue(this.markdown)
       this.editor.on('change', this.updateMarkdown)
+    },
+    setFocusOnLastLineInCodeMirror () {
+      // REF: https://davidwalsh.name/codemirror-set-focus-line
+      this.editor.focus()
+      // Set the cursor at the end of existing content
+      this.editor.setCursor(this.editor.lineCount(), 0)
+      const { left: x, clientHeight: y } = this.editor.getScrollInfo()
+      this.editor.scrollTo(x, y)
+    },
+    setFocusOnCodeMirror () {
+      this.editor.focus()
+      this.editor.setCursor()
     }
   }
 }
