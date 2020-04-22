@@ -63,9 +63,9 @@ export default {
     this.initializeCodeMirror()
   },
   watch: {
-    transformed: {
-      handler (newTransformed) {
-        this.markmap.setData(newTransformed)
+    markdown: {
+      handler (newMarkdown) {
+        this.markmap.setData(transform(newMarkdown))
         this.saveTextToLocalStorage()
       },
       deep: true
