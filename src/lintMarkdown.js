@@ -1,6 +1,6 @@
-const malformedBulletPointPattern = /(?<previousLine>^|\n[ ]*)(?<token>[-*])(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ \n-])/ // Can't put '*' in negated set in capture group `line` because it could be used to italicize
-const malformedNumberedPointPattern = /(?<previousLine>^|\n[ ]*)(?<token>\d+\.)(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ .\n])/
-const malformedHeaderPattern = /(?<previousLine>^|\n[ ]*)(?<token>[#]{1,6})(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ #\n])/
+const malformedBulletPointPattern = /(?<previousLine>^|\n[ \t]*)(?<token>[-*])(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ \n-])/ // Can't put '*' in negated set in capture group `line` because it could be used to italicize
+const malformedNumberedPointPattern = /(?<previousLine>^|\n[ \t]*)(?<token>\d+\.)(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ .\n])/
+const malformedHeaderPattern = /(?<previousLine>^|\n[ \t]*)(?<token>[#]{1,6})(?<irregularity>[ ]{2,}|[ ]{0})(?<line>[^ #\n])/
 
 // const bulletPointPattern = /[-*]/g
 // const numberPointPattern = /\./g
