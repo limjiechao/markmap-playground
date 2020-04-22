@@ -44,9 +44,6 @@ export default {
     }
   },
   computed: {
-    transformed () {
-      return transform(this.markdown)
-    },
     appHeight () {
       return `${this.documentElementClientHeight}px`
     },
@@ -106,7 +103,7 @@ export default {
       this.initializeDownload('download-markdown', this.markdown, `markmap-${Date.now()}.txt`, 'text/plain')
     },
     downloadHtml () {
-      const html = fillTemplate(this.transformed)
+      const html = fillTemplate(transform(this.markdown))
       this.initializeDownload('download-html', html, `markmap-${Date.now()}.html`, 'text/html')
     },
     downloadSvg () {
@@ -136,7 +133,7 @@ export default {
       )
     },
     instantiateMarkmap () {
-      return markmap('#mindmap', this.transformed, { autoFit: true })
+      return markmap('#mindmap', transform(this.markdown), { autoFit: true })
     },
     retrieveSavedTextFromLocalStorage () {
       return window.localStorage.getItem('markmapPlaygroundSavedText') || ''
