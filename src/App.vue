@@ -103,7 +103,7 @@ export default {
       return `<?xml version="1.0" encoding="UTF-8"?><svg id="markmap" xmlns="http://www.w3.org/2000/svg" class="markmap">${innerHtml}</svg>`
     },
     lintText () {
-      this.editor.setValue(this.markdown)
+      this.editor.setValue(lintMarkdown(this.markdown))
     },
     copyText () {
       document.getElementById('editor').select()
