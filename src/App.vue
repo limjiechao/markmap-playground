@@ -29,7 +29,7 @@ import debounce from 'lodash/debounce'
 
 import { lintMarkdown } from './lintMarkdown'
 
-const placeholderMarkdown = '# Oceans\n\n- Atlantic\n- Arctic\n- Indian\n- Pacific\n-'
+const placeholderMarkdown = '# Oceans\n\n- Atlantic\n- Arctic\n- Indian\n- Pacific\n- '
 
 export default {
   name: 'App',
