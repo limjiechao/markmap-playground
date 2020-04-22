@@ -5,6 +5,7 @@
         id="editor"
         :value="markdown"
         @input="updateMarkdown"
+        placeholder="Enter Markdown here..."
         name="markmap"/>
       <div id="bottom-bar">
         <a id="lint-text" @click="lintText">Lint Text</a>
@@ -58,29 +59,11 @@ export default {
     this.initializeDocumentElementClientWidthListener(document.documentElement, window)
   },
   mounted () {
-    // initializeTabKey()
     this.markdown = lintMarkdown(this.retrieveSavedTextFromLocalStorage()) || placeholderMarkdown
-    this.instantiateMarkmap()
-
-    // eslint-disable-next-line no-undef
-    this.editor = CodeMirror.fromTextArea(
-      document.querySelector('textarea#editor'),
-      {
-        mode: 'markdown',
-        lineNumbers: true,
-        highlightFormatting: true,
-        theme: 'default',
-        showTrailingSpace: true,
-        autoCloseBrackets: true,
-        extraKeys: { Enter: 'newlineAndIndentContinueMarkdownList' }
-      }
-    )
-    this.editor.setValue(this.markdown)
-    this.editor.on('change', this.updateMarkdown)
-    // eslint-disable-next-line no-undef
-    CodeMirror.keyMap.default['Shift-Tab'] = 'indentLess'
-    // eslint-disable-next-line no-undef
-    CodeMirror.keyMap.default.Tab = 'indentMore'
+    this.markmap = this.instantiateMarkmap()
+    this.editor = this.instantiateCodeMirror(window.CodeMirror)
+    this.configureCodeMirrorTabKey(window.CodeMirror)
+    this.initializeCodeMirror()
   },
   watch: {
     transformed: {
@@ -153,13 +136,50 @@ export default {
       )
     },
     instantiateMarkmap () {
-      this.markmap = markmap('#mindmap', this.transformed, { autoFit: true })
+      return markmap('#mindmap', this.transformed, { autoFit: true })
     },
     retrieveSavedTextFromLocalStorage () {
       return window.localStorage.getItem('markmapPlaygroundSavedText') || ''
     },
     saveTextToLocalStorage () {
       window.localStorage.setItem('markmapPlaygroundSavedText', this.markdown)
+    },
+    instantiateCodeMirror (globalInstance) {
+      return globalInstance.fromTextArea(
+        document.querySelector('textarea#editor'),
+        {
+          mode: 'markdown',
+          lineNumbers: true,
+          theme: 'default',
+          highlightFormatting: true,
+          showTrailingSpace: true,
+          autoCloseBrackets: true,
+          scrollbarStyle: 'overlay',
+          styleActiveLine: { nonEmpty: true },
+          scrollPastEnd: true,
+          tabSize: 2,
+          indentUnit: 2,
+          lineWrapping: true,
+          foldGutter: true,
+          gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+          indentWithTabs: true,
+          highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
+          extraKeys: {
+            Enter: 'newlineAndIndentContinueMarkdownList',
+            'Ctrl-Q': function (cm) { cm.foldCode(cm.getCursor()) }
+          }
+          // autoCloseTags: true,
+        }
+      )
+    },
+    configureCodeMirrorTabKey (globalInstance) {
+      // REF: https://github.com/codemirror/CodeMirror/issues/2428#issuecomment-39315423
+      globalInstance.keyMap.default['Shift-Tab'] = 'indentLess'
+      globalInstance.keyMap.default.Tab = 'indentMore'
+    },
+    initializeCodeMirror () {
+      this.editor.setValue(this.markdown)
+      this.editor.on('change', this.updateMarkdown)
     }
   }
 }
