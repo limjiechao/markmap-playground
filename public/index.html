@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+
     <link rel="stylesheet" href="codemirror-5.53.2/lib/codemirror.css">
     <link rel="stylesheet" href="codemirror-5.53.2/addon/edit/trailingspace.css">
     <link rel="stylesheet" href="codemirror-5.53.2/addon/display/placeholder.css">
@@ -18,19 +19,20 @@
     <script src="codemirror-5.53.2/lib/codemirror.js"></script>
 
     <script src="codemirror-5.53.2/mode/markdown/markdown.js"></script>
+    <script src="codemirror-5.53.2/mode/xml/xml.js"></script>
     <!--<script src="codemirror-5.53.2/mode/htmlmixed/htmlmixed.js"></script>-->
     <!--<script src="codemirror-5.53.2/mode/javascript/javascript.js"></script>-->
-    <script src="codemirror-5.53.2/mode/xml/xml.js"></script>
 
     <script src="codemirror-5.53.2/addon/display/placeholder.js"></script>
+    <script src="codemirror-5.53.2/addon/selection/active-line.js"></script>
+    <script src="codemirror-5.53.2/addon/dialog/dialog.js"></script>
+    <!--<script src="codemirror-5.53.2/addon/edit/closebrackets.js"></script>-->
     <script src="codemirror-5.53.2/addon/edit/trailingspace.js"></script>
-    <script src="codemirror-5.53.2/addon/scroll/simplescrollbars.js"></script>
-    <script src="codemirror-5.53.2/addon/scroll/scrollpastend.js"></script>
     <script src="codemirror-5.53.2/addon/edit/continuelist.js"></script>
     <script src="codemirror-5.53.2/addon/edit/closetag.js"></script>
-    <script src="codemirror-5.53.2/addon/selection/active-line.js"></script>
+    <script src="codemirror-5.53.2/addon/scroll/simplescrollbars.js"></script>
+    <script src="codemirror-5.53.2/addon/scroll/scrollpastend.js"></script>
     <script src="codemirror-5.53.2/addon/search/search.js"></script>
-    <script src="codemirror-5.53.2/addon/dialog/dialog.js"></script>
     <script src="codemirror-5.53.2/addon/search/searchcursor.js"></script>
     <script src="codemirror-5.53.2/addon/search/jump-to-line.js"></script>
     <script src="codemirror-5.53.2/addon/search/match-highlighter.js"></script>
@@ -38,7 +40,6 @@
     <script src="codemirror-5.53.2/addon/fold/foldgutter.js"></script>
     <script src="codemirror-5.53.2/addon/fold/indent-fold.js"></script>
     <script src="codemirror-5.53.2/addon/fold/markdown-fold.js"></script>
-    <!--<script src="codemirror-5.53.2/addon/edit/closebrackets.js"></script>-->
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
   <body>
