@@ -2,39 +2,45 @@
   <div
     id="app"
     :style="{ height: appHeight, width: appWidth }">
-    <div id="editor-pane">
-      <textarea
-        id="editor"
-        :value="markdown"
-        @input="updateMarkdown"
-        placeholder="Enter Markdown here..."
-        name="markmap"/>
-      <div id="bottom-bar">
-        <a
-          id="lint-text"
-          @click="lintText">Lint Text</a>
-        <a
-          id="copy-text"
-          @click="copyText">Copy Text</a>
-        <a
-          id="clear-text"
-          @click="clearText">Clear Text</a>
-        <a
-          id="download-markdown"
-          @click="downloadText">Get Text</a>
-        <a
-          id="download-html"
-          @click="downloadHtml">Get HTML</a>
-        <a
-          id="download-svg"
-          @click="downloadSvg">Get SVG</a>
-        <a
-          id="fit-mindmap"
-          @click="fitMindmap">Fit Canvas</a>
+    <div
+      id="panes"
+      :style="{ height: panesHeight }">
+      <div
+        id="editor-pane"
+        class="resizable">
+        <textarea
+          id="editor"
+          :value="markdown"
+          @input="updateMarkdown"
+          placeholder="Enter Markdown here..."
+          name="markmap"/>
+      </div>
+      <div id="mindmap-pane">
+        <svg id="mindmap"/>
       </div>
     </div>
-    <div id="mindmap-pane">
-      <svg id="mindmap"/>
+    <div id="bottom-bar">
+      <a
+        id="lint-text"
+        @click="lintText">Lint Text</a>
+      <a
+        id="copy-text"
+        @click="copyText">Copy Text</a>
+      <a
+        id="clear-text"
+        @click="clearText">Clear Text</a>
+      <a
+        id="download-markdown"
+        @click="downloadText">Get Text</a>
+      <a
+        id="download-html"
+        @click="downloadHtml">Get HTML</a>
+      <a
+        id="download-svg"
+        @click="downloadSvg">Get SVG</a>
+      <a
+        id="fit-mindmap"
+        @click="fitMindmap">Fit Canvas</a>
     </div>
   </div>
 </template>
@@ -47,7 +53,8 @@ import debounce from 'lodash/debounce'
 
 import { lintMarkdown } from './lintMarkdown'
 
-const placeholderMarkdown = '# Oceans\n\n- Atlantic\n- Arctic\n- Indian\n- Pacific\n- '
+const placeholderMarkdown =
+  '# Oceans\n\n- Atlantic\n- Arctic\n- Indian\n- Pacific\n- '
 
 export default {
   name: 'App',
@@ -55,6 +62,7 @@ export default {
     return {
       documentElementClientHeight: null,
       documentElementClientWidth: null,
+      bottomBarElementHeight: null,
       markdown: null,
       markmap: null,
       editor: null
@@ -69,14 +77,26 @@ export default {
     },
     appDimensions () {
       return { height: this.appHeight, width: this.appWidth }
+    },
+    panesHeight () {
+      return `${this.documentElementClientHeight - this.bottomBarElementHeight}px`
     }
   },
   created () {
-    this.initializeDocumentElementClientHeightListener(document.documentElement, window)
-    this.initializeDocumentElementClientWidthListener(document.documentElement, window)
+    this.initializeDocumentElementClientHeightListener(
+      document.documentElement,
+      window
+    )
+    this.initializeDocumentElementClientWidthListener(
+      document.documentElement,
+      window
+    )
   },
   mounted () {
-    this.markdown = lintMarkdown(this.retrieveSavedTextFromLocalStorage()) || placeholderMarkdown
+    this.bottomBarElementHeight = this.getBottomBarElementHeight()
+    this.markdown =
+      lintMarkdown(this.retrieveSavedTextFromLocalStorage()) ||
+      placeholderMarkdown
     this.markmap = this.instantiateMarkmap()
     this.editor = this.instantiateCodeMirror(window.CodeMirror)
     this.configureCodeMirrorTabKey(window.CodeMirror)
@@ -96,12 +116,9 @@ export default {
     }
   },
   methods: {
-    updateMarkdown: debounce(
-      function (codeMirror) {
-        this.markdown = lintMarkdown(codeMirror.getValue())
-      },
-      800
-    ),
+    updateMarkdown: debounce(function (codeMirror) {
+      this.markdown = lintMarkdown(codeMirror.getValue())
+    }, 800),
     svgOutput () {
       const innerHtml = document.getElementById('mindmap').innerHTML
       return `<?xml version="1.0" encoding="UTF-8"?><svg id="markmap" xmlns="http://www.w3.org/2000/svg" class="markmap">${innerHtml}</svg>`
@@ -125,14 +142,29 @@ export default {
       }
     },
     downloadText () {
-      this.initializeDownload('download-markdown', this.markdown, `markmap-${Date.now()}.txt`, 'text/plain')
+      this.initializeDownload(
+        'download-markdown',
+        this.markdown,
+        `markmap-${Date.now()}.txt`,
+        'text/plain'
+      )
     },
     downloadHtml () {
       const html = fillTemplate(transform(this.markdown))
-      this.initializeDownload('download-html', html, `markmap-${Date.now()}.html`, 'text/html')
+      this.initializeDownload(
+        'download-html',
+        html,
+        `markmap-${Date.now()}.html`,
+        'text/html'
+      )
     },
     downloadSvg () {
-      this.initializeDownload('download-svg', this.svgOutput(), `markmap-${Date.now()}.svg`, 'image/svg+xml')
+      this.initializeDownload(
+        'download-svg',
+        this.svgOutput(),
+        `markmap-${Date.now()}.svg`,
+        'image/svg+xml'
+      )
     },
     initializeDownload (elementId, text, filename, type) {
       // REF: https://stackoverflow.com/a/29339233
@@ -141,25 +173,25 @@ export default {
       button.href = URL.createObjectURL(file)
       button.download = filename
     },
-    fitMindmap: debounce(
-      function () { this.markmap.fit() },
-      800
-    ),
+    fitMindmap: debounce(function () {
+      this.markmap.fit()
+    }, 800),
     initializeDocumentElementClientHeightListener (documentElement, window) {
       this.documentElementClientHeight = documentElement.clientHeight
 
-      window.addEventListener(
-        'resize',
-        () => { this.documentElementClientHeight = documentElement.clientHeight }
-      )
+      window.addEventListener('resize', () => {
+        this.documentElementClientHeight = documentElement.clientHeight
+      })
     },
     initializeDocumentElementClientWidthListener (documentElement, window) {
       this.documentElementClientWidth = documentElement.clientWidth
 
-      window.addEventListener(
-        'resize',
-        () => { this.documentElementClientWidth = documentElement.clientWidth }
-      )
+      window.addEventListener('resize', () => {
+        this.documentElementClientWidth = documentElement.clientWidth
+      })
+    },
+    getBottomBarElementHeight () {
+      return document.getElementById('bottom-bar').clientHeight
     },
     instantiateMarkmap () {
       return markmap('#mindmap', transform(this.markdown), { autoFit: true })
@@ -189,10 +221,15 @@ export default {
           foldGutter: true,
           gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
           indentWithTabs: true,
-          highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
+          highlightSelectionMatches: {
+            showToken: /\w/,
+            annotateScrollbar: true
+          },
           extraKeys: {
             Enter: 'newlineAndIndentContinueMarkdownList',
-            'Ctrl-Q': function (cm) { cm.foldCode(cm.getCursor()) }
+            'Ctrl-Q': function (cm) {
+              cm.foldCode(cm.getCursor())
+            }
           }
           // autoCloseTags: true,
         }
@@ -228,7 +265,8 @@ html,
 body,
 #app {
   /* REF: https://css-tricks.com/snippets/css/system-font-stack/ */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
@@ -249,7 +287,7 @@ body,
   font-size: 0.714285rem;
   font-weight: bolder;
   color: dodgerblue;
-  padding: 0.4rem 0.3rem;
+  padding: 0.3rem 0.3rem;
   text-align: center;
 }
 
@@ -287,6 +325,11 @@ body,
   padding: 0 0.857142rem;
 }
 
+.resizable {
+  resize: horizontal;
+  overflow: auto;
+}
+
 /*@supports (padding-left: env(safe-area-inset-left)) {*/
 /*  #mindmap,*/
 /*  #editor {*/
@@ -296,14 +339,14 @@ body,
 
 /* REF: https://stackoverflow.com/questions/3379091/is-it-possible-to-change-width-of-tab-symbol-in-textarea */
 textarea {
-  -moz-tab-size : 4;
-  -o-tab-size : 4;
-  tab-size : 4;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
 }
 
 /* Left-Right View */
 @media (min-aspect-ratio: 2/3) {
-  #app {
+  #panes {
     display: flex;
     flex-direction: row;
     justify-content: stretch;
@@ -336,7 +379,7 @@ textarea {
 
 /* Top-Bottom View */
 @media (max-aspect-ratio: 2/3) {
-  #app {
+  #panes {
     display: flex;
     flex-direction: column;
     justify-content: stretch;
