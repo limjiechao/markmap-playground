@@ -325,11 +325,6 @@ body,
   padding: 0 0.857142rem;
 }
 
-.resizable {
-  resize: horizontal;
-  overflow: auto;
-}
-
 /*@supports (padding-left: env(safe-area-inset-left)) {*/
 /*  #mindmap,*/
 /*  #editor {*/
@@ -360,6 +355,10 @@ textarea {
   }
   #editor {
     font-size: 0.857142rem;
+  }
+  .resizable {
+    resize: horizontal;
+    overflow: auto;
   }
   #editor-pane {
     display: flex;
@@ -394,6 +393,10 @@ textarea {
   }
   #editor {
     font-size: 0.714285rem;
+  }
+  .resizable {
+    resize: vertical;
+    overflow: auto;
   }
   #editor-pane {
     display: flex;
