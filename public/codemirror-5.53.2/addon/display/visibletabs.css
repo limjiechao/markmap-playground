@@ -1,6 +1,6 @@
 .cm-tab {
   /* https://yoksel.github.io/url-encoder/ */
-  background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0' y='0' width='14' height='14' viewBox='0, 0, 14, 14'%3E%3Cg id='Background'%3E%3Crect x='0' y='0' width='14' height='14' fill='%23000000' fill-opacity='0'/%3E%3C/g%3E%3Cg id='keyboard-tab'%3E%3Cpath d='M7.067,3.933 L9.467,6.333 L0,6.333 L0,7.667 L9.467,7.667 L7.067,10.067 L8,11 L12,7 L8,3 L7.067,3.933 z M12.667,3 L12.667,11 L14,11 L14,3 L12.667,3 z' fill='%23B8B8B8'/%3E%3C/g%3E%3C/svg%3E%0A");
-  background-position: right;
+  background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0' y='0' width='14' height='14' viewBox='0, 0, 14, 14'%3E%3Cg id='keyboard-tab'%3E%3Cpath d='M7.067,3.933 L9.467,6.333 L0,6.333 L0,7.667 L9.467,7.667 L7.067,10.067 L8,11 L12,7 L8,3 L7.067,3.933 z M12.667,3 L12.667,11 L14,11 L14,3 L12.667,3 z' fill='%23CBCBCB'/%3E%3C/g%3E%3C/svg%3E%0A");
+  background-position: center center;
   background-repeat: no-repeat;
 }
