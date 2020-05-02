@@ -92,7 +92,7 @@ export default {
       const currentAspectRatio = this.documentElementClientWidth / this.documentElementClientHeight
       const twoThirdAspectRatio = 2 / 3
       const leftRightMode = (currentAspectRatio > twoThirdAspectRatio) && 'left-right'
-      const topBottomMode = (currentAspectRatio > twoThirdAspectRatio) && 'top-bottom'
+      const topBottomMode = (currentAspectRatio < twoThirdAspectRatio) && 'top-bottom'
 
       return leftRightMode || topBottomMode
     },
@@ -128,8 +128,11 @@ export default {
     )
     this.initializePanesDimensions()
       .then(() => {
-        this.paneWidthRatio = this.setPaneWidthRatio()
-        this.paneHeightRatio = this.setPaneHeightRatio()
+        if (this.paneMode === 'left-right') {
+          this.paneWidthRatio = this.setPaneWidthRatio()
+        } else if (this.paneMode === 'top-bottom') {
+          this.paneHeightRatio = this.setPaneHeightRatio()
+        }
       })
   },
   mounted () {
@@ -154,6 +157,15 @@ export default {
       this.editor.refresh() // Refreshes bottom margin for `scrollPastEnd`
       this.setPanesDimensions()
       this.fitMindmap()
+    },
+    paneMode (newValue) {
+      if (newValue === 'left-right') {
+        this.editorPaneElementClientHeight = null
+        this.mindmapPaneElementClientHeight = null
+      } else if (newValue === 'top-bottom') {
+        this.editorPaneElementClientWidth = null
+        this.mindmapPaneElementClientWidth = null
+      }
     }
   },
   methods: {
@@ -251,7 +263,7 @@ export default {
       this.mindmapPaneElementClientWidth = this.paneWidthRatio.mindmap ? this.paneWidthRatio.mindmap * this.documentElementClientWidth : this.documentElementClientWidth
       this.editorPaneElementClientHeight = this.paneHeightRatio.editor ? this.paneHeightRatio.editor * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
       this.mindmapPaneElementClientHeight = this.paneHeightRatio.mindmap ? this.paneHeightRatio.mindmap * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
-    }, 200),
+    }, 100),
     initializePanesResizing (activeTargetClass, passiveTargetClass, resizeHandleClass = '.resize-handle') {
       const leftTargetElement = document.querySelector(activeTargetClass)
       const rightTargetElement = document.querySelector(passiveTargetClass)
@@ -292,26 +304,45 @@ export default {
             originalMouseY = event.pageY
 
             const resize = event => {
-              const leftTargetWidth = originalLeftTargetWidth + (event.pageX - originalMouseX)
-              const leftTargetHeight = originalLeftTargetHeight + (event.pageY - originalMouseY)
-              if (this.paneMode === 'left-right' && leftTargetWidth > minimumSize) {
-                leftTargetElement.style.width = leftTargetWidth + 'px'
+              if (this.paneMode === 'left-right') {
+                const leftTargetWidth = originalLeftTargetWidth + (event.pageX - originalMouseX)
+
+                if (leftTargetWidth > minimumSize) {
+                  this.editorPaneElementClientWidth = leftTargetWidth
+                  this.editorPaneElementClientHeight = this.documentElementClientHeight - this.toolbarElementHeight
+                }
               }
-              if (this.paneMode === 'top-bottom' && leftTargetHeight > minimumSize) {
-                leftTargetElement.style.height = leftTargetHeight + 'px'
+              if (this.paneMode === 'top-bottom') {
+                const leftTargetHeight = originalLeftTargetHeight + (event.pageY - originalMouseY)
+
+                if (leftTargetHeight > minimumSize) {
+                  this.editorPaneElementClientWidth = this.documentElementClientWidth
+                  this.editorPaneElementClientHeight = leftTargetHeight
+                }
               }
 
-              const rightTargetWidth = originalRightTargetWidth - (event.pageX - originalMouseX)
-              const rightTargetHeight = originalRightTargetHeight + (event.pageY - originalMouseY)
-              if (this.paneMode === 'left-right' && rightTargetWidth > minimumSize) {
-                rightTargetElement.style.width = rightTargetWidth + 'px'
+              if (this.paneMode === 'left-right') {
+                const rightTargetWidth = originalRightTargetWidth - (event.pageX - originalMouseX)
+
+                if (rightTargetWidth > minimumSize) {
+                  this.mindmapPaneElementClientWidth = rightTargetWidth
+                  this.mindmapPaneElementClientHeight = this.documentElementClientHeight - this.toolbarElementHeight
+                }
               }
-              if (this.paneMode === 'top-bottom' && rightTargetHeight > minimumSize) {
-                rightTargetElement.style.height = rightTargetHeight + 'px'
+              if (this.paneMode === 'top-bottom') {
+                const rightTargetHeight = originalRightTargetHeight - (event.pageY - originalMouseY)
+
+                if (rightTargetHeight > minimumSize) {
+                  this.mindmapPaneElementClientWidth = this.documentElementClientWidth
+                  this.mindmapPaneElementClientHeight = rightTargetHeight
+                }
               }
 
-              this.paneWidthRatio = this.setPaneWidthRatio()
-              this.paneHeightRatio = this.setPaneHeightRatio()
+              if (this.paneMode === 'left-right') {
+                this.paneWidthRatio = this.setPaneWidthRatio()
+              } else if (this.paneMode === 'top-bottom') {
+                this.paneHeightRatio = this.setPaneHeightRatio()
+              }
               this.fitMindmap()
             }
             const stopResize = () => { window.removeEventListener('mousemove', resize) }
