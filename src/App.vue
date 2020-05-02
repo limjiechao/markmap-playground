@@ -2,24 +2,7 @@
   <div
     id="app"
     :style="{ height: appHeight, width: appWidth }">
-    <div
-      id="panes"
-      :style="{ height: panesHeight }">
-      <div
-        id="editor-pane"
-        class="resizable">
-        <textarea
-          id="editor"
-          :value="markdown"
-          @input="updateMarkdown"
-          placeholder="Enter Markdown here..."
-          name="markmap"/>
-      </div>
-      <div id="mindmap-pane">
-        <svg id="mindmap"/>
-      </div>
-    </div>
-    <div id="bottom-bar">
+    <div id="toolbar">
       <a
         id="lint-text"
         @click="lintText">Lint Text</a>
@@ -42,6 +25,30 @@
         id="fit-mindmap"
         @click="fitMindmap">Fit Canvas</a>
     </div>
+    <div
+      id="panes"
+      :style="{ height: panesHeight }">
+      <div
+        id="editor-pane"
+        class="resize-animation"
+        :style="{ width: editorPaneWidth, height: editorPaneHeight }">
+        <textarea
+          id="editor"
+          :value="markdown"
+          @input="updateMarkdown"
+          placeholder="Enter Markdown here..."
+          name="markmap"/>
+      </div>
+      <div
+        class="resize-handle resize-animation"
+        :style="{ height: panesHeight }"/>
+      <div
+        id="mindmap-pane"
+        class="resize-animation"
+        :style="{ width: mindmapPaneWidth, height: mindmapPaneHeight }">
+        <svg id="mindmap"/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -62,13 +69,33 @@ export default {
     return {
       documentElementClientHeight: null,
       documentElementClientWidth: null,
-      bottomBarElementHeight: null,
+      editorPaneElementClientWidth: null,
+      editorPaneElementClientHeight: null,
+      mindmapPaneElementClientWidth: null,
+      mindmapPaneElementClientHeight: null,
+      toolbarElementHeight: null,
+      panesWidthRatio: {
+        editor: null,
+        mindmap: null
+      },
+      panesHeightRatio: {
+        editor: null,
+        mindmap: null
+      },
       markdown: null,
       markmap: null,
       editor: null
     }
   },
   computed: {
+    paneMode () {
+      const currentAspectRatio = this.documentElementClientWidth / this.documentElementClientHeight
+      const twoThirdAspectRatio = 2 / 3
+      const leftRightMode = (currentAspectRatio > twoThirdAspectRatio) && 'left-right'
+      const topBottomMode = (currentAspectRatio > twoThirdAspectRatio) && 'top-bottom'
+
+      return leftRightMode || topBottomMode
+    },
     appHeight () {
       return `${this.documentElementClientHeight}px`
     },
@@ -79,26 +106,35 @@ export default {
       return { height: this.appHeight, width: this.appWidth }
     },
     panesHeight () {
-      return `${this.documentElementClientHeight - this.bottomBarElementHeight}px`
+      return `${this.documentElementClientHeight - this.toolbarElementHeight}px`
+    },
+    editorPaneWidth () {
+      return `${this.editorPaneElementClientWidth}px`
+    },
+    editorPaneHeight () {
+      return `${this.editorPaneElementClientHeight}px`
+    },
+    mindmapPaneWidth () {
+      return `${this.mindmapPaneElementClientWidth}px`
+    },
+    mindmapPaneHeight () {
+      return `${this.mindmapPaneElementClientHeight}px`
     }
   },
   created () {
-    this.initializeDocumentElementClientHeightListener(
+    this.initializeDocumentElementClientDimensionalChangeListener(
       document.documentElement,
       window
     )
-    this.initializeDocumentElementClientWidthListener(
-      document.documentElement,
-      window
-    )
+    this.initializePanesDimensions()
+      .then(() => { this.panesWidthRatio = this.setPanesWidthRatio() })
   },
   mounted () {
-    this.bottomBarElementHeight = this.getBottomBarElementHeight()
-    this.markdown =
-      lintMarkdown(this.retrieveSavedTextFromLocalStorage()) ||
-      placeholderMarkdown
+    this.toolbarElementHeight = this.getToolbarElementHeight()
+    this.markdown = lintMarkdown(this.retrieveSavedTextFromLocalStorage()) || placeholderMarkdown
     this.markmap = this.instantiateMarkmap()
     this.editor = this.instantiateCodeMirror(window.CodeMirror)
+    this.initializePanesResizing('#editor-pane', '#mindmap-pane')
     this.configureCodeMirrorTabKey(window.CodeMirror)
     this.initializeCodeMirror()
     this.setFocusOnLastLineInCodeMirror()
@@ -112,6 +148,8 @@ export default {
       deep: true
     },
     appDimensions () {
+      this.editor.refresh() // Refreshes bottom margin for `scrollPastEnd`
+      this.setPanesDimensions()
       this.fitMindmap()
     }
   },
@@ -176,22 +214,98 @@ export default {
     fitMindmap: debounce(function () {
       this.markmap.fit()
     }, 800),
-    initializeDocumentElementClientHeightListener (documentElement, window) {
+    elementClientWidthGetter (elementId) {
+      const element = document.getElementById(elementId)
+      return element.clientWidth
+    },
+    elementClientHeightGetter (elementId) {
+      const element = document.getElementById(elementId)
+      return element.clientHeight
+    },
+    async initializePanesDimensions () {
+      while (!document.getElementById('toolbar')?.clientHeight) {
+        await new Promise(resolve => { setTimeout(resolve, 100) })
+      }
+      this.editorPaneElementClientWidth = this.elementClientWidthGetter('editor-pane')
+      this.mindmapPaneElementClientWidth = this.elementClientWidthGetter('mindmap-pane')
+      this.editorPaneElementClientHeight = this.elementClientHeightGetter('editor-pane')
+      this.mindmapPaneElementClientHeight = this.elementClientHeightGetter('mindmap-pane')
+    },
+    setPanesWidthRatio () {
+      return {
+        editor: this.editorPaneElementClientWidth / this.documentElementClientWidth,
+        mindmap: this.mindmapPaneElementClientWidth / this.documentElementClientWidth
+      }
+    },
+    setPanesDimensions: debounce(function () {
+      this.editorPaneElementClientWidth = this.panesWidthRatio.editor ? this.panesWidthRatio.editor * this.documentElementClientWidth : this.documentElementClientWidth
+      this.mindmapPaneElementClientWidth = this.panesWidthRatio.mindmap ? this.panesWidthRatio.mindmap * this.documentElementClientWidth : this.documentElementClientWidth
+      this.editorPaneElementClientHeight = this.panesHeightRatio.editor ? this.panesHeightRatio.editor * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
+      this.mindmapPaneElementClientHeight = this.panesHeightRatio.mindmap ? this.panesHeightRatio.mindmap * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
+    }, 200),
+    initializePanesResizing (activeTargetClass, passiveTargetClass, resizeHandleClass = '.resize-handle') {
+      const leftTargetElement = document.querySelector(activeTargetClass)
+      const rightTargetElement = document.querySelector(passiveTargetClass)
+      const resizeHandles = document.querySelectorAll(resizeHandleClass)
+      const minimumSize = 20
+
+      let originalLeftTargetWidth = 0
+      let originalLeftTargetHeight = 0
+      let originalRightTargetWidth = 0
+      let originalRightTargetHeight = 0
+      let originalMouseX = 0
+      let originalMouseY = 0
+
+      for (const resizeHandle of resizeHandles) {
+        resizeHandle.addEventListener('mousedown', event => {
+          event.preventDefault()
+
+          originalLeftTargetWidth = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('width').replace('px', ''))
+          originalLeftTargetHeight = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('height').replace('px', ''))
+          originalRightTargetWidth = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('width').replace('px', ''))
+          originalRightTargetHeight = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('height').replace('px', ''))
+          originalMouseX = event.pageX
+          originalMouseY = event.pageY
+
+          const resize = event => {
+            const leftTargetWidth = originalLeftTargetWidth + (event.pageX - originalMouseX)
+            const leftTargetHeight = originalLeftTargetHeight + (event.pageY - originalMouseY)
+            if (this.paneMode === 'left-right' && leftTargetWidth > minimumSize) {
+              leftTargetElement.style.width = leftTargetWidth + 'px'
+            }
+            if (this.paneMode === 'top-bottom' && leftTargetHeight > minimumSize) {
+              leftTargetElement.style.height = leftTargetHeight + 'px'
+            }
+
+            const rightTargetWidth = originalRightTargetWidth - (event.pageX - originalMouseX)
+            const rightTargetHeight = originalRightTargetHeight + (event.pageY - originalMouseY)
+            if (this.paneMode === 'left-right' && rightTargetWidth > minimumSize) {
+              rightTargetElement.style.width = rightTargetWidth + 'px'
+            }
+            if (this.paneMode === 'top-bottom' && rightTargetHeight > minimumSize) {
+              rightTargetElement.style.height = rightTargetHeight + 'px'
+            }
+
+            this.fitMindmap()
+          }
+          const stopResize = () => { window.removeEventListener('mousemove', resize) }
+
+          window.addEventListener('mousemove', resize)
+          window.addEventListener('mouseup', stopResize)
+        })
+      }
+    },
+    initializeDocumentElementClientDimensionalChangeListener (documentElement, window) {
+      this.documentElementClientWidth = documentElement.clientWidth
       this.documentElementClientHeight = documentElement.clientHeight
 
       window.addEventListener('resize', () => {
+        this.documentElementClientWidth = documentElement.clientWidth
         this.documentElementClientHeight = documentElement.clientHeight
       })
     },
-    initializeDocumentElementClientWidthListener (documentElement, window) {
-      this.documentElementClientWidth = documentElement.clientWidth
-
-      window.addEventListener('resize', () => {
-        this.documentElementClientWidth = documentElement.clientWidth
-      })
-    },
-    getBottomBarElementHeight () {
-      return document.getElementById('bottom-bar').clientHeight
+    getToolbarElementHeight () {
+      return document.getElementById('toolbar').clientHeight
     },
     instantiateMarkmap () {
       return markmap('#mindmap', transform(this.markdown), { autoFit: true })
@@ -254,7 +368,7 @@ export default {
     },
     setFocusOnCodeMirror () {
       this.editor.focus()
-      this.editor.setCursor()
+      this.editor.setCursor(this.editor.lineCount(), 0)
     }
   }
 }
@@ -271,18 +385,20 @@ body,
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   color: #333;
+  background-color: #f7f7f7;
 }
 
-#bottom-bar {
+#toolbar {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
+  border-bottom: 1px solid #dddddd;
   width: 100%;
   cursor: pointer;
   background-color: #f0f0f0;
 }
 
-#bottom-bar > a {
+#toolbar > a {
   text-decoration: none;
   font-size: 0.714285rem;
   font-weight: bolder;
@@ -291,12 +407,12 @@ body,
   text-align: center;
 }
 
-#bottom-bar > a:active {
+#toolbar > a:active {
   color: mediumseagreen;
 }
 
 /*@supports (padding-bottom: env(safe-area-inset-bottom)) {*/
-/*  #bottom-bar {*/
+/*  #toolbar {*/
 /*    padding-bottom: calc(env(safe-area-inset-bottom) * 0.6);*/
 /*  }*/
 /*}*/
@@ -325,6 +441,10 @@ body,
   padding: 0 0.857142rem;
 }
 
+.resize-animation {
+  transition: width 0.1s ease-in-out, height 0.1s ease-in-out;
+}
+
 /*@supports (padding-left: env(safe-area-inset-left)) {*/
 /*  #mindmap,*/
 /*  #editor {*/
@@ -339,6 +459,10 @@ textarea {
   tab-size: 4;
 }
 
+.resize-handle {
+  background-color: #f0f0f0;
+}
+
 /* Left-Right View */
 @media (min-aspect-ratio: 2/3) {
   #panes {
@@ -346,6 +470,12 @@ textarea {
     flex-direction: row;
     justify-content: stretch;
     width: 100%;
+  }
+  .resize-handle {
+    width: 0.8%;
+    cursor: col-resize;
+    border-left: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
   }
   #mindmap {
     width: 65%;
@@ -356,10 +486,6 @@ textarea {
   #editor {
     font-size: 0.857142rem;
   }
-  .resizable {
-    resize: horizontal;
-    overflow: auto;
-  }
   #editor-pane {
     display: flex;
     flex-direction: column;
@@ -368,7 +494,7 @@ textarea {
   }
   #mindmap-pane {
     height: 100%;
-    width: 65%;
+    width: 64.2%;
   }
   #mindmap {
     height: 99%;
@@ -384,6 +510,12 @@ textarea {
     justify-content: stretch;
     width: 100%;
   }
+  .resize-handle {
+    height: 0.8%;
+    cursor: col-resize;
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+  }
   #mindmap {
     height: 99%;
     width: 100%;
@@ -394,10 +526,6 @@ textarea {
   #editor {
     font-size: 0.714285rem;
   }
-  .resizable {
-    resize: vertical;
-    overflow: auto;
-  }
   #editor-pane {
     display: flex;
     flex-direction: column;
@@ -406,7 +534,7 @@ textarea {
     width: 100%;
   }
   #mindmap-pane {
-    height: 55%;
+    height: 54.2%;
     width: 100%;
   }
 }
