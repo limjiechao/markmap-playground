@@ -27,7 +27,7 @@
     </div>
     <div
       id="panes"
-      :style="{ height: panesHeight }">
+      :style="{ height: paneHeight }">
       <div
         id="editor-pane"
         class="resize-animation"
@@ -41,7 +41,7 @@
       </div>
       <div
         class="resize-handle resize-animation"
-        :style="{ height: panesHeight }"/>
+        :style="{ width: paneMode === 'top-bottom' ? appWidth : null, height: paneMode === 'left-right' ? paneHeight : null }"/>
       <div
         id="mindmap-pane"
         class="resize-animation"
@@ -74,11 +74,11 @@ export default {
       mindmapPaneElementClientWidth: null,
       mindmapPaneElementClientHeight: null,
       toolbarElementHeight: null,
-      panesWidthRatio: {
+      paneWidthRatio: {
         editor: null,
         mindmap: null
       },
-      panesHeightRatio: {
+      paneHeightRatio: {
         editor: null,
         mindmap: null
       },
@@ -105,7 +105,7 @@ export default {
     appDimensions () {
       return { height: this.appHeight, width: this.appWidth }
     },
-    panesHeight () {
+    paneHeight () {
       return `${this.documentElementClientHeight - this.toolbarElementHeight}px`
     },
     editorPaneWidth () {
@@ -127,7 +127,10 @@ export default {
       window
     )
     this.initializePanesDimensions()
-      .then(() => { this.panesWidthRatio = this.setPanesWidthRatio() })
+      .then(() => {
+        this.paneWidthRatio = this.setPaneWidthRatio()
+        this.paneHeightRatio = this.setPaneHeightRatio()
+      })
   },
   mounted () {
     this.toolbarElementHeight = this.getToolbarElementHeight()
@@ -231,17 +234,23 @@ export default {
       this.editorPaneElementClientHeight = this.elementClientHeightGetter('editor-pane')
       this.mindmapPaneElementClientHeight = this.elementClientHeightGetter('mindmap-pane')
     },
-    setPanesWidthRatio () {
+    setPaneWidthRatio () {
       return {
         editor: this.editorPaneElementClientWidth / this.documentElementClientWidth,
         mindmap: this.mindmapPaneElementClientWidth / this.documentElementClientWidth
       }
     },
+    setPaneHeightRatio () {
+      return {
+        editor: this.editorPaneElementClientHeight / this.documentElementClientHeight,
+        mindmap: this.mindmapPaneElementClientHeight / this.documentElementClientHeight
+      }
+    },
     setPanesDimensions: debounce(function () {
-      this.editorPaneElementClientWidth = this.panesWidthRatio.editor ? this.panesWidthRatio.editor * this.documentElementClientWidth : this.documentElementClientWidth
-      this.mindmapPaneElementClientWidth = this.panesWidthRatio.mindmap ? this.panesWidthRatio.mindmap * this.documentElementClientWidth : this.documentElementClientWidth
-      this.editorPaneElementClientHeight = this.panesHeightRatio.editor ? this.panesHeightRatio.editor * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
-      this.mindmapPaneElementClientHeight = this.panesHeightRatio.mindmap ? this.panesHeightRatio.mindmap * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
+      this.editorPaneElementClientWidth = this.paneWidthRatio.editor ? this.paneWidthRatio.editor * this.documentElementClientWidth : this.documentElementClientWidth
+      this.mindmapPaneElementClientWidth = this.paneWidthRatio.mindmap ? this.paneWidthRatio.mindmap * this.documentElementClientWidth : this.documentElementClientWidth
+      this.editorPaneElementClientHeight = this.paneHeightRatio.editor ? this.paneHeightRatio.editor * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
+      this.mindmapPaneElementClientHeight = this.paneHeightRatio.mindmap ? this.paneHeightRatio.mindmap * this.documentElementClientHeight : this.documentElementClientHeight - this.toolbarElementHeight
     }, 200),
     initializePanesResizing (activeTargetClass, passiveTargetClass, resizeHandleClass = '.resize-handle') {
       const leftTargetElement = document.querySelector(activeTargetClass)
@@ -256,43 +265,66 @@ export default {
       let originalMouseX = 0
       let originalMouseY = 0
 
-      for (const resizeHandle of resizeHandles) {
-        resizeHandle.addEventListener('mousedown', event => {
-          event.preventDefault()
+      const events = {
+        touch: {
+          start: 'touchstart',
+          move: 'touchmove',
+          end: 'touchend'
+        },
+        mouse: {
+          start: 'mousedown',
+          move: 'mousemove',
+          end: 'mouseup'
+        }
+      }
 
-          originalLeftTargetWidth = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('width').replace('px', ''))
-          originalLeftTargetHeight = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('height').replace('px', ''))
-          originalRightTargetWidth = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('width').replace('px', ''))
-          originalRightTargetHeight = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('height').replace('px', ''))
-          originalMouseX = event.pageX
-          originalMouseY = event.pageY
+      const resizeHandler = eventType => {
+        const { move, end } = events[eventType]
+        return (
+          event => {
+            event.preventDefault()
 
-          const resize = event => {
-            const leftTargetWidth = originalLeftTargetWidth + (event.pageX - originalMouseX)
-            const leftTargetHeight = originalLeftTargetHeight + (event.pageY - originalMouseY)
-            if (this.paneMode === 'left-right' && leftTargetWidth > minimumSize) {
-              leftTargetElement.style.width = leftTargetWidth + 'px'
-            }
-            if (this.paneMode === 'top-bottom' && leftTargetHeight > minimumSize) {
-              leftTargetElement.style.height = leftTargetHeight + 'px'
-            }
+            originalLeftTargetWidth = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('width').replace('px', ''))
+            originalLeftTargetHeight = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('height').replace('px', ''))
+            originalRightTargetWidth = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('width').replace('px', ''))
+            originalRightTargetHeight = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('height').replace('px', ''))
+            originalMouseX = event.pageX
+            originalMouseY = event.pageY
 
-            const rightTargetWidth = originalRightTargetWidth - (event.pageX - originalMouseX)
-            const rightTargetHeight = originalRightTargetHeight + (event.pageY - originalMouseY)
-            if (this.paneMode === 'left-right' && rightTargetWidth > minimumSize) {
-              rightTargetElement.style.width = rightTargetWidth + 'px'
-            }
-            if (this.paneMode === 'top-bottom' && rightTargetHeight > minimumSize) {
-              rightTargetElement.style.height = rightTargetHeight + 'px'
-            }
+            const resize = event => {
+              const leftTargetWidth = originalLeftTargetWidth + (event.pageX - originalMouseX)
+              const leftTargetHeight = originalLeftTargetHeight + (event.pageY - originalMouseY)
+              if (this.paneMode === 'left-right' && leftTargetWidth > minimumSize) {
+                leftTargetElement.style.width = leftTargetWidth + 'px'
+              }
+              if (this.paneMode === 'top-bottom' && leftTargetHeight > minimumSize) {
+                leftTargetElement.style.height = leftTargetHeight + 'px'
+              }
 
-            this.fitMindmap()
+              const rightTargetWidth = originalRightTargetWidth - (event.pageX - originalMouseX)
+              const rightTargetHeight = originalRightTargetHeight + (event.pageY - originalMouseY)
+              if (this.paneMode === 'left-right' && rightTargetWidth > minimumSize) {
+                rightTargetElement.style.width = rightTargetWidth + 'px'
+              }
+              if (this.paneMode === 'top-bottom' && rightTargetHeight > minimumSize) {
+                rightTargetElement.style.height = rightTargetHeight + 'px'
+              }
+
+              this.paneWidthRatio = this.setPaneWidthRatio()
+              this.paneHeightRatio = this.setPaneHeightRatio()
+              this.fitMindmap()
+            }
+            const stopResize = () => { window.removeEventListener('mousemove', resize) }
+
+            window.addEventListener(move, resize)
+            window.addEventListener(end, stopResize)
           }
-          const stopResize = () => { window.removeEventListener('mousemove', resize) }
+        )
+      }
 
-          window.addEventListener('mousemove', resize)
-          window.addEventListener('mouseup', stopResize)
-        })
+      for (const resizeHandle of resizeHandles) {
+        resizeHandle.addEventListener(events.mouse.start, resizeHandler('mouse'))
+        resizeHandle.addEventListener(events.touch.start, resizeHandler('touch'))
       }
     },
     initializeDocumentElementClientDimensionalChangeListener (documentElement, window) {
@@ -511,8 +543,8 @@ textarea {
     width: 100%;
   }
   .resize-handle {
-    height: 0.8%;
-    cursor: col-resize;
+    height: 2%;
+    cursor: row-resize;
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
   }
@@ -530,11 +562,11 @@ textarea {
     display: flex;
     flex-direction: column;
     justify-content: stretch;
-    height: 45%;
+    height: 44%;
     width: 100%;
   }
   #mindmap-pane {
-    height: 54.2%;
+    height: 54%;
     width: 100%;
   }
 }
