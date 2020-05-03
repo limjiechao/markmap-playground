@@ -372,7 +372,7 @@ export default {
               }
               this.fitMindmap()
             }
-            const stopResize = () => { window.removeEventListener('mousemove', resize) }
+            const stopResize = () => { window.removeEventListener(move, resize) }
 
             window.addEventListener(move, resize)
             window.addEventListener(end, stopResize)
