@@ -267,11 +267,9 @@ export default {
     resetPaneDimensionsIfPaneModeChanges () {
       if (this.shouldResetHeightAndWidth) {
         if (this.paneMode === 'left-right') {
-          console.log('left-right')
           this.editorPaneElementClientHeight = null
           this.mindmapPaneElementClientHeight = null
         } else if (this.paneMode === 'top-bottom') {
-          console.log('top-bottom')
           this.editorPaneElementClientWidth = null
           this.mindmapPaneElementClientWidth = null
         }
@@ -337,7 +335,6 @@ export default {
             const resize = event => {
               if (this.paneMode === 'left-right') {
                 const leftTargetWidth = originalLeftTargetWidth + (event.pageX - originalMouseX)
-                console.log('leftTargetWidth', leftTargetWidth)
                 if (leftTargetWidth > minimumSize) {
                   this.editorPaneElementClientWidth = leftTargetWidth
                   this.editorPaneElementClientHeight = this.paneClientHeight
@@ -345,7 +342,6 @@ export default {
               }
               if (this.paneMode === 'top-bottom') {
                 const leftTargetHeight = originalLeftTargetHeight + (event.pageY - originalMouseY)
-                console.log('leftTargetHeight', leftTargetHeight)
                 if (leftTargetHeight > minimumSize) {
                   this.editorPaneElementClientWidth = this.documentElementClientWidth
                   this.editorPaneElementClientHeight = leftTargetHeight
