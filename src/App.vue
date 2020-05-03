@@ -308,7 +308,6 @@ export default {
       const edtiorElement = document.querySelector(edtiorClass)
       const mindmapElement = document.querySelector(mindmapClass)
       const resizeHandles = document.querySelectorAll(resizeHandleClass)
-      const minimumSize = 200
 
       let originalEditorWidth = 0
       let originalEditorHeight = 0
@@ -316,6 +315,7 @@ export default {
       let originalMindmapHeight = 0
       let originalMouseX = 0
       let originalMouseY = 0
+      const minimumSize = 0
 
       const events = {
         touch: {
@@ -580,7 +580,6 @@ textarea {
     display: flex;
     flex-direction: column;
     width: 35%;
-    min-width: 200px;
   }
   #mindmap-pane {
     height: 100%;
