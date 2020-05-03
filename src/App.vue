@@ -294,16 +294,17 @@ export default {
         }
       )
     },
-    initializePaneResizing (leftTargetClass, rightTargetClass, resizeHandleClass = '.resize-handle') {
-      const leftTargetElement = document.querySelector(leftTargetClass)
-      const rightTargetElement = document.querySelector(rightTargetClass)
+    // REF: https://codepen.io/ZeroX-DG/pen/vjdoYe
+    initializePaneResizing (edtiorClass, mindmapClass, resizeHandleClass = '.resize-handle') {
+      const edtiorElement = document.querySelector(edtiorClass)
+      const mindmapElement = document.querySelector(mindmapClass)
       const resizeHandles = document.querySelectorAll(resizeHandleClass)
-      const minimumSize = 20
+      const minimumSize = 200
 
-      let originalLeftTargetWidth = 0
-      let originalLeftTargetHeight = 0
-      let originalRightTargetWidth = 0
-      let originalRightTargetHeight = 0
+      let originalEditorWidth = 0
+      let originalEditorHeight = 0
+      let originalMindmapWidth = 0
+      let originalMindmapHeight = 0
       let originalMouseX = 0
       let originalMouseY = 0
 
@@ -326,43 +327,36 @@ export default {
           event => {
             event.preventDefault()
 
-            originalLeftTargetWidth = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('width').replace('px', ''))
-            originalLeftTargetHeight = parseFloat(getComputedStyle(leftTargetElement, null).getPropertyValue('height').replace('px', ''))
-            originalRightTargetWidth = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('width').replace('px', ''))
-            originalRightTargetHeight = parseFloat(getComputedStyle(rightTargetElement, null).getPropertyValue('height').replace('px', ''))
+            originalEditorWidth = parseFloat(getComputedStyle(edtiorElement, null).getPropertyValue('width').replace('px', ''))
+            originalEditorHeight = parseFloat(getComputedStyle(edtiorElement, null).getPropertyValue('height').replace('px', ''))
+            originalMindmapWidth = parseFloat(getComputedStyle(mindmapElement, null).getPropertyValue('width').replace('px', ''))
+            originalMindmapHeight = parseFloat(getComputedStyle(mindmapElement, null).getPropertyValue('height').replace('px', ''))
             originalMouseX = event.pageX
             originalMouseY = event.pageY
 
             const resize = event => {
               if (this.paneMode === 'left-right') {
-                const leftTargetWidth = originalLeftTargetWidth + (event.pageX - originalMouseX)
-                if (leftTargetWidth > minimumSize) {
-                  this.editorPaneElementClientWidth = leftTargetWidth
+                const editorWidth = originalEditorWidth + (event.pageX - originalMouseX)
+                const mindmapWidth = originalMindmapWidth - (event.pageX - originalMouseX)
+
+                if (editorWidth > minimumSize && mindmapWidth > minimumSize) {
+                  this.editorPaneElementClientWidth = editorWidth
                   this.editorPaneElementClientHeight = this.paneClientHeight
-                }
-              }
-              if (this.paneMode === 'top-bottom') {
-                const leftTargetHeight = originalLeftTargetHeight + (event.pageY - originalMouseY)
-                if (leftTargetHeight > minimumSize) {
-                  this.editorPaneElementClientWidth = this.documentElementClientWidth
-                  this.editorPaneElementClientHeight = leftTargetHeight
-                }
-              }
 
-              if (this.paneMode === 'left-right') {
-                const rightTargetWidth = originalRightTargetWidth - (event.pageX - originalMouseX)
-
-                if (rightTargetWidth > minimumSize) {
-                  this.mindmapPaneElementClientWidth = rightTargetWidth
+                  this.mindmapPaneElementClientWidth = mindmapWidth
                   this.mindmapPaneElementClientHeight = this.paneClientHeight
                 }
               }
               if (this.paneMode === 'top-bottom') {
-                const rightTargetHeight = originalRightTargetHeight - (event.pageY - originalMouseY)
+                const editorHeight = originalEditorHeight + (event.pageY - originalMouseY)
+                const mindmapHeight = originalMindmapHeight - (event.pageY - originalMouseY)
 
-                if (rightTargetHeight > minimumSize) {
+                if (editorHeight > minimumSize && mindmapHeight > minimumSize) {
+                  this.editorPaneElementClientWidth = this.documentElementClientWidth
+                  this.editorPaneElementClientHeight = editorHeight
+
                   this.mindmapPaneElementClientWidth = this.documentElementClientWidth
-                  this.mindmapPaneElementClientHeight = rightTargetHeight
+                  this.mindmapPaneElementClientHeight = mindmapHeight
                 }
               }
 
@@ -577,7 +571,7 @@ textarea {
     display: flex;
     flex-direction: column;
     width: 35%;
-    min-width: 280px;
+    min-width: 200px;
   }
   #mindmap-pane {
     height: 100%;
