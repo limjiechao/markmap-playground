@@ -293,9 +293,9 @@ export default {
         }
       )
     },
-    initializePaneResizing (activeTargetClass, passiveTargetClass, resizeHandleClass = '.resize-handle') {
-      const leftTargetElement = document.querySelector(activeTargetClass)
-      const rightTargetElement = document.querySelector(passiveTargetClass)
+    initializePaneResizing (leftTargetClass, rightTargetClass, resizeHandleClass = '.resize-handle') {
+      const leftTargetElement = document.querySelector(leftTargetClass)
+      const rightTargetElement = document.querySelector(rightTargetClass)
       const resizeHandles = document.querySelectorAll(resizeHandleClass)
       const minimumSize = 20
 
