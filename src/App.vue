@@ -308,13 +308,6 @@ export default {
       const edtiorElement = document.querySelector(edtiorClass)
       const mindmapElement = document.querySelector(mindmapClass)
       const resizeHandles = document.querySelectorAll(resizeHandleClass)
-
-      let originalEditorWidth = 0
-      let originalEditorHeight = 0
-      let originalMindmapWidth = 0
-      let originalMindmapHeight = 0
-      let originalMouseX = 0
-      let originalMouseY = 0
       const minimumSize = 0
 
       const events = {
@@ -336,12 +329,12 @@ export default {
           event => {
             event.preventDefault()
 
-            originalEditorWidth = parseFloat(getComputedStyle(edtiorElement, null).getPropertyValue('width').replace('px', ''))
-            originalEditorHeight = parseFloat(getComputedStyle(edtiorElement, null).getPropertyValue('height').replace('px', ''))
-            originalMindmapWidth = parseFloat(getComputedStyle(mindmapElement, null).getPropertyValue('width').replace('px', ''))
-            originalMindmapHeight = parseFloat(getComputedStyle(mindmapElement, null).getPropertyValue('height').replace('px', ''))
-            originalMouseX = event.pageX
-            originalMouseY = event.pageY
+            const originalEditorWidth = parseFloat(getComputedStyle(edtiorElement, null).getPropertyValue('width').replace('px', ''))
+            const originalEditorHeight = parseFloat(getComputedStyle(edtiorElement, null).getPropertyValue('height').replace('px', ''))
+            const originalMindmapWidth = parseFloat(getComputedStyle(mindmapElement, null).getPropertyValue('width').replace('px', ''))
+            const originalMindmapHeight = parseFloat(getComputedStyle(mindmapElement, null).getPropertyValue('height').replace('px', ''))
+            const originalMouseX = event.pageX
+            const originalMouseY = event.pageY
 
             const resize = event => {
               if (this.paneMode === 'left-right') {
