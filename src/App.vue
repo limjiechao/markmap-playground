@@ -242,21 +242,30 @@ export default {
       this.mindmapPaneElementClientHeight = this.elementClientHeightGetter('mindmap-pane')
     },
     setPaneWidthRatio () {
+      const handle = 0.008
+      const halvedHandleWidth = handle / 2
+
       const totalWidth = this.editorPaneElementClientWidth + this.mindmapPaneElementClientWidth
-      return {
-        editor: this.editorPaneElementClientWidth / totalWidth - 0.004,
-        handle: 0.008,
-        mindmap: this.mindmapPaneElementClientWidth / totalWidth - 0.004
-      }
+      const tentativeEditorRatio = this.editorPaneElementClientHeight / totalWidth
+      const tentativeMindmapRatio = this.mindmapPaneElementClientHeight / totalWidth
+
+      const editor = tentativeEditorRatio > halvedHandleWidth ? tentativeEditorRatio - halvedHandleWidth : tentativeEditorRatio
+      const mindmap = tentativeMindmapRatio > halvedHandleWidth ? tentativeMindmapRatio - halvedHandleWidth : tentativeMindmapRatio
+
+      return { editor, handle, mindmap }
     },
     setPaneHeightRatio () {
-      const totalHeight = this.editorPaneElementClientHeight + this.mindmapPaneElementClientHeight
+      const handle = 0.02
+      const halvedHandleHeight = handle / 2
 
-      return {
-        editor: this.editorPaneElementClientHeight / totalHeight - 0.01,
-        handle: 0.02,
-        mindmap: this.mindmapPaneElementClientHeight / totalHeight - 0.01
-      }
+      const totalHeight = this.editorPaneElementClientHeight + this.mindmapPaneElementClientHeight
+      const tentativeEditorRatio = this.editorPaneElementClientHeight / totalHeight
+      const tentativeMindmapRatio = this.mindmapPaneElementClientHeight / totalHeight
+
+      const editor = tentativeEditorRatio > halvedHandleHeight ? tentativeEditorRatio - halvedHandleHeight : tentativeEditorRatio
+      const mindmap = tentativeMindmapRatio > halvedHandleHeight ? tentativeMindmapRatio - halvedHandleHeight : tentativeMindmapRatio
+
+      return { editor, handle, mindmap }
     },
     updatePaneHeightOrPaneWidthRatioPerCurrentPaneMode () {
       if (this.paneMode === 'left-right') {
