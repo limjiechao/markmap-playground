@@ -133,13 +133,7 @@ export default {
       window
     )
     this.initializePaneDimensions()
-      .then(() => {
-        if (this.paneMode === 'left-right') {
-          this.paneWidthRatio = this.setPaneWidthRatio()
-        } else if (this.paneMode === 'top-bottom') {
-          this.paneHeightRatio = this.setPaneHeightRatio()
-        }
-      })
+      .then(this.updatePaneHeightOrPaneWidthRatioPerCurrentPaneMode)
   },
   mounted () {
     this.toolbarElementClientHeight = this.getToolbarElementHeight()
@@ -264,6 +258,13 @@ export default {
         mindmap: this.mindmapPaneElementClientHeight / totalHeight - 0.01
       }
     },
+    updatePaneHeightOrPaneWidthRatioPerCurrentPaneMode () {
+      if (this.paneMode === 'left-right') {
+        this.paneWidthRatio = this.setPaneWidthRatio()
+      } else if (this.paneMode === 'top-bottom') {
+        this.paneHeightRatio = this.setPaneHeightRatio()
+      }
+    },
     resetPaneDimensionsIfPaneModeChanges () {
       if (this.shouldResetHeightAndWidth) {
         if (this.paneMode === 'left-right') {
@@ -365,11 +366,7 @@ export default {
                 }
               }
 
-              if (this.paneMode === 'left-right') {
-                this.paneWidthRatio = this.setPaneWidthRatio()
-              } else if (this.paneMode === 'top-bottom') {
-                this.paneHeightRatio = this.setPaneHeightRatio()
-              }
+              this.updatePaneHeightOrPaneWidthRatioPerCurrentPaneMode()
               this.fitMindmap()
             }
             const stopResize = () => { window.removeEventListener(move, resize) }
