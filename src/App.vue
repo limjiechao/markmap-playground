@@ -224,23 +224,6 @@ export default {
     fitMindmap: debounce(function () {
       this.markmap.fit()
     }, 800),
-    elementClientWidthGetter (elementId) {
-      const element = document.getElementById(elementId)
-      return element.clientWidth
-    },
-    elementClientHeightGetter (elementId) {
-      const element = document.getElementById(elementId)
-      return element.clientHeight
-    },
-    async initializePaneDimensions () {
-      while (!document.getElementById('toolbar')?.clientHeight) {
-        await new Promise(resolve => { setTimeout(resolve, 100) })
-      }
-      this.editorPaneElementClientWidth = this.elementClientWidthGetter('editor-pane')
-      this.mindmapPaneElementClientWidth = this.elementClientWidthGetter('mindmap-pane')
-      this.editorPaneElementClientHeight = this.elementClientHeightGetter('editor-pane')
-      this.mindmapPaneElementClientHeight = this.elementClientHeightGetter('mindmap-pane')
-    },
     setPaneWidthRatio () {
       const handle = 0.008
       const halvedHandleWidth = handle / 2
@@ -273,6 +256,15 @@ export default {
       } else if (this.paneMode === 'top-bottom') {
         this.paneHeightRatio = this.setPaneHeightRatio()
       }
+    },
+    async initializePaneDimensions () {
+      while (!document.getElementById('toolbar')?.clientHeight) {
+        await new Promise(resolve => { setTimeout(resolve, 100) })
+      }
+      this.editorPaneElementClientWidth = this.elementClientWidthGetter('editor-pane')
+      this.mindmapPaneElementClientWidth = this.elementClientWidthGetter('mindmap-pane')
+      this.editorPaneElementClientHeight = this.elementClientHeightGetter('editor-pane')
+      this.mindmapPaneElementClientHeight = this.elementClientHeightGetter('mindmap-pane')
     },
     resetPaneDimensionsIfPaneModeChanges () {
       if (this.shouldResetHeightAndWidth) {
@@ -386,6 +378,14 @@ export default {
         this.documentElementClientWidth = documentElement.clientWidth
         this.documentElementClientHeight = documentElement.clientHeight
       })
+    },
+    elementClientWidthGetter (elementId) {
+      const element = document.getElementById(elementId)
+      return element.clientWidth
+    },
+    elementClientHeightGetter (elementId) {
+      const element = document.getElementById(elementId)
+      return element.clientHeight
     },
     getToolbarElementHeight () {
       return document.getElementById('toolbar').clientHeight
