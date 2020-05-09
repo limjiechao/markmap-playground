@@ -582,7 +582,7 @@ textarea {
     display: flex;
     flex-direction: column;
     width: 35%;
-  } 
+  }
   #mindmap-pane {
     height: 100%;
     width: 64.2%;
