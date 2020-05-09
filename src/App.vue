@@ -176,10 +176,19 @@ export default {
       this.setFocusOnCodeMirror()
     },
     copyText () {
-      document.getElementById('editor').select()
+      // NOTE: This only works if element is not `display: none;` or `visibility: hidden`
+      // document.getElementById('editor').select()
+      // document.execCommand('copy')
+      // document.getSelection().removeAllRanges()
+      // document.activeElement.blur()
+
+      const copyMarkdown = event => {
+        event.preventDefault()
+        event.clipboardData.setData('text/plain', this.markdown)
+      }
+      window.addEventListener('copy', copyMarkdown)
       document.execCommand('copy')
-      document.getSelection().removeAllRanges()
-      document.activeElement.blur()
+      window.removeEventListener('copy', copyMarkdown)
     },
     clearText () {
       const isPlaceholderText = this.markdown === placeholderMarkdown
@@ -573,7 +582,7 @@ textarea {
     display: flex;
     flex-direction: column;
     width: 35%;
-  }
+  } 
   #mindmap-pane {
     height: 100%;
     width: 64.2%;
