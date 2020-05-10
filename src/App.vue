@@ -182,6 +182,7 @@ export default {
       // document.getSelection().removeAllRanges()
       // document.activeElement.blur()
 
+      // REF: https://stackoverflow.com/a/61167333
       const copyMarkdown = event => {
         event.preventDefault()
         event.clipboardData.setData('text/plain', this.markdown)
