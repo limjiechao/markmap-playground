@@ -53,8 +53,8 @@
 </template>
 
 <script>
-import { transform } from 'markmap-lib/dist/transform.common'
-import { markmap } from 'markmap-lib/dist/view.common'
+import { transform } from 'markmap-lib/dist/transform'
+import { markmap } from 'markmap-lib/dist/view'
 import { fillTemplate } from 'markmap-lib/dist/template'
 import debounce from 'lodash/debounce'
 
