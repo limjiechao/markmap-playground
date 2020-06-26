@@ -194,9 +194,11 @@ export default {
     clearText () {
       const isPlaceholderText = this.markdown === placeholderMarkdown
       if (isPlaceholderText) {
-        this.markdown = ''
+        this.editor.setValue('')
+        this.setFocusOnCodeMirror()
       } else if (window.confirm('Are you sure you want to clear the text?')) {
-        this.markdown = ''
+        this.editor.setValue('')
+        this.setFocusOnCodeMirror()
       }
     },
     downloadText () {
