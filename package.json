@@ -10,17 +10,17 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "lodash": "^4.17.15",
-    "markmap-lib": "^0.7.8",
+    "markmap-lib": "^0.7.11",
     "vue": "^2.6.11"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.3.1",
-    "@vue/cli-plugin-eslint": "~4.3.1",
-    "@vue/cli-service": "~4.3.1",
+    "@vue/cli-plugin-babel": "~4.4.6",
+    "@vue/cli-plugin-eslint": "~4.4.6",
+    "@vue/cli-service": "~4.4.6",
     "@vue/eslint-config-standard": "^5.1.2",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.0.0",
-    "eslint-plugin-import": "^2.20.2",
+    "eslint": "^7.3.1",
+    "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
