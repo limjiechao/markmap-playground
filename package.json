@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "markmap-lib": "^0.7.11",
     "vue": "^2.6.11"
   },
